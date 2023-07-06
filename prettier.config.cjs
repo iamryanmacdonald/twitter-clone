@@ -1,6 +1,29 @@
-/** @type {import("prettier").Config} */
+/** @typedef {import("prettier").Config} PrettierConfig */
+/** @typedef {import("@ianvs/prettier-plugin-sort-imports").PluginConfig} SortImportsConfig */
+/** @typedef {{ tailwindConfig: string }} TailwindConfig */
+
+/** @type { PrettierConfig | SortImportsConfig | TailwindConfig } */
 const config = {
-  plugins: [require.resolve("prettier-plugin-tailwindcss")],
+  importOrder: [
+    "^(react/(.*)$)|^(react$)",
+    "^(next/(.*)$)|^(next$)",
+    "<THIRD_PARTY_MODULES>",
+    "",
+    "^~/env(.*)$",
+    "^~/pages/(.*)$",
+    "^~/server/(.*)$",
+    "^~/utils/(.*)$",
+    "",
+    "^[./]",
+    "",
+    "^(?!.*[.]css$)[./].*$",
+    ".css$",
+  ],
+  plugins: [
+    "@ianvs/prettier-plugin-sort-imports",
+    "prettier-plugin-tailwindcss",
+  ],
+  pluginSearchDirs: false,
 };
 
 module.exports = config;
