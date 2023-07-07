@@ -14,12 +14,12 @@ datasource db {
 model Tweet {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
-  userId    String
+  creatorId String
   content   String
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  creator User @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
-  @@index([userId])
+  @@index([creatorId])
 }
 
 // Necessary for Next auth
@@ -66,6 +66,8 @@ model User {
   sessions Session[]
 
   // Not NextAuth related
+  username String?
+
   tweets Tweet[]
 }
 

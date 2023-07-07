@@ -10,6 +10,7 @@ const config = {
     "<THIRD_PARTY_MODULES>",
     "",
     "^~/env(.*)$",
+    "^~/components/(.*)$",
     "^~/pages/(.*)$",
     "^~/server/(.*)$",
     "^~/utils/(.*)$",
@@ -24,6 +25,7 @@ const config = {
     "prettier-plugin-tailwindcss",
   ],
   pluginSearchDirs: false,
+  tailwindConfig: "./tailwind.config.ts",
 };
 
 module.exports = config;
