@@ -1,4 +1,5 @@
 import { tweetsRouter } from "~/server/api/routers/tweets";
+import { usersRouter } from "~/server/api/routers/users";
 import { createTRPCRouter } from "~/server/api/trpc";
 
 /**
@@ -8,6 +9,7 @@ import { createTRPCRouter } from "~/server/api/trpc";
  */
 export const appRouter = createTRPCRouter({
   tweets: tweetsRouter,
+  users: usersRouter,
 });
 
 // export type definition of API
