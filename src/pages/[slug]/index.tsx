@@ -1,19 +1,27 @@
 import type { GetStaticProps, NextPage } from "next";
-import { useRouter } from "next/router";
 import { createServerSideHelpers } from "@trpc/react-query/server";
-import { ArrowLeft } from "lucide-react";
 import superjson from "superjson";
 
 import { Avatar } from "~/components/avatar";
+import { BackButton } from "~/components/back-button";
 import { Layout } from "~/components/layout";
+import { LoadingSpinner } from "~/components/loading";
 import { Tweet } from "~/components/tweet";
 import { appRouter } from "~/server/api/root";
 import { prisma } from "~/server/db";
 import { api } from "~/utils/api";
 
 const Page: NextPage<{ username: string }> = ({ username }) => {
-  const router = useRouter();
-  const { data: user } = api.users.getByUsername.useQuery({ username });
+  const { data: user, isLoading } = api.users.getByUsername.useQuery({
+    username,
+  });
+
+  if (isLoading)
+    return (
+      <Layout>
+        <LoadingSpinner />
+      </Layout>
+    );
 
   if (!user)
     return (
@@ -25,13 +33,7 @@ const Page: NextPage<{ username: string }> = ({ username }) => {
   return (
     <Layout>
       <div className="h-32 bg-slate-900">
-        <div
-          className="ml-2 mt-2 flex w-fit items-center gap-1 rounded-sm px-2 py-2 hover:cursor-pointer hover:bg-slate-950"
-          onClick={() => void router.push("/")}
-        >
-          <ArrowLeft />
-          <span>Back</span>
-        </div>
+        <BackButton className="ml-2 mt-2" />
       </div>
       <div className="-mt-16 flex h-32 items-center justify-between  px-8">
         <Avatar
