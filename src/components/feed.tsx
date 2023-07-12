@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import type { Tweet as TweetType } from "@prisma/client";
 import InfiniteScroll from "react-infinite-scroll-component";
 

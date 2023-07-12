@@ -28,34 +28,6 @@ export const tweetsRouter = createTRPCRouter({
 
       return tweet;
     }),
-  getAll: publicProcedure
-    .input(
-      z.object({
-        limit: z.number().min(1).max(100).nullish(),
-      })
-    )
-    .query(async ({ ctx, input }) => {
-      const limit = input.limit ?? 50;
-
-      const tweets = await ctx.prisma.tweet.findMany({
-        include: {
-          creator: {
-            select: {
-              image: true,
-              name: true,
-              username: true,
-            },
-          },
-        },
-        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-        take: limit + 1,
-        where: {
-          parentId: null,
-        },
-      });
-
-      return tweets;
-    }),
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
@@ -82,6 +54,48 @@ export const tweetsRouter = createTRPCRouter({
       });
 
       return tweet;
+    }),
+  getInfiniteByUsername: publicProcedure
+    .input(
+      z.object({
+        cursor: z.object({ createdAt: z.date(), id: z.string() }).nullish(),
+        limit: z.number().min(1).max(100).nullish(),
+        username: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { cursor, username } = input;
+      const limit = input.limit ?? 50;
+
+      const tweets = await ctx.prisma.tweet.findMany({
+        cursor: cursor ? { createdAt_id: cursor } : undefined,
+        include: {
+          creator: {
+            select: {
+              image: true,
+              name: true,
+              username: true,
+            },
+          },
+        },
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        take: limit + 1,
+        where: {
+          creator: {
+            username,
+          },
+        },
+      });
+
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (tweets.length > limit) {
+        const nextItem = tweets.pop();
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const { createdAt, id } = nextItem!;
+        nextCursor = { createdAt, id };
+      }
+
+      return { nextCursor, tweets };
     }),
   getInfinitePublicFeed: publicProcedure
     .input(

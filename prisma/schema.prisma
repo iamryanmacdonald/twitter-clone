@@ -11,6 +11,18 @@ datasource db {
   relationMode = "prisma"
 }
 
+model Follow {
+  followedId String
+  followerId String
+
+  followed User @relation(name: "followers", fields: [followedId], references: [id], onDelete: Cascade)
+  follower User @relation(name: "following", fields: [followerId], references: [id], onDelete: Cascade)
+
+  @@unique([followedId, followerId])
+  @@index([followedId])
+  @@index([followerId])
+}
+
 model Tweet {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
@@ -73,7 +85,9 @@ model User {
   // Not NextAuth related
   username String?
 
-  tweets Tweet[]
+  tweets    Tweet[]
+  followers Follow[] @relation(name: "followers")
+  following Follow[] @relation(name: "following")
 }
 
 model VerificationToken {
