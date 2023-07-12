@@ -4,7 +4,8 @@ import type { inferRouterOutputs } from "@trpc/server";
 import { Avatar } from "~/components/avatar";
 import type { AppRouter } from "~/server/api/root";
 
-type TweetInput = inferRouterOutputs<AppRouter>["tweets"]["getAll"][number];
+type TweetInput =
+  inferRouterOutputs<AppRouter>["tweets"]["getInfiniteByUsername"]["tweets"][number];
 
 export const Tweet = ({ tweet }: { tweet: TweetInput }) => {
   const { content, createdAt, creator, id } = tweet;
