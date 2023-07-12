@@ -8,15 +8,21 @@ import {
 
 export const tweetsRouter = createTRPCRouter({
   create: protectedProcedure
-    .input(z.object({ content: z.string().min(1).max(255) }))
+    .input(
+      z.object({
+        content: z.string().min(1).max(255),
+        parentId: z.string().optional(),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const { user } = ctx.session;
-      const { content } = input;
+      const { content, parentId } = input;
 
       const tweet = await ctx.prisma.tweet.create({
         data: {
           content,
           creatorId: user.id,
+          parentId,
         },
       });
 
@@ -43,6 +49,9 @@ export const tweetsRouter = createTRPCRouter({
         },
         orderBy: [{ createdAt: "desc" }, { id: "desc" }],
         take: limit + 1,
+        where: {
+          parentId: null,
+        },
       });
 
       return tweets;
@@ -59,6 +68,11 @@ export const tweetsRouter = createTRPCRouter({
               image: true,
               name: true,
               username: true,
+            },
+          },
+          replies: {
+            include: {
+              creator: true,
             },
           },
         },

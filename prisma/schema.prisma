@@ -16,10 +16,14 @@ model Tweet {
   createdAt DateTime @default(now())
   creatorId String
   content   String
+  parentId  String?
 
-  creator User @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  creator User    @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  parent  Tweet?  @relation(name: "replies", fields: [parentId], references: id, onDelete: NoAction, onUpdate: NoAction)
+  replies Tweet[] @relation(name: "replies")
 
   @@index([creatorId])
+  @@index([parentId])
 }
 
 // Necessary for Next auth

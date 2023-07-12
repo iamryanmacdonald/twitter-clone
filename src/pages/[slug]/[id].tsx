@@ -7,6 +7,8 @@ import { Avatar } from "~/components/avatar";
 import { BackButton } from "~/components/back-button";
 import { Layout } from "~/components/layout";
 import { LoadingSpinner } from "~/components/loading";
+import { Tweet } from "~/components/tweet";
+import { TweetForm } from "~/components/tweet-form";
 import { appRouter } from "~/server/api/root";
 import { prisma } from "~/server/db";
 import { api } from "~/utils/api";
@@ -50,9 +52,13 @@ const Page: NextPage<{ id: string }> = ({ id }) => {
           </Link>
         </div>
       </div>
-      <div className="border-b border-slate-600/50 px-4 pb-4 text-lg">
+      <div className="border-b border-slate-600/75 px-4 pb-4 text-lg">
         {tweet.content}
       </div>
+      <TweetForm placeholder="Tweet your reply!" parentId={tweet.id} />
+      {tweet.replies.map((reply) => (
+        <Tweet key={reply.id} tweet={reply} />
+      ))}
     </Layout>
   );
 };
