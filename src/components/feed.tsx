@@ -32,7 +32,7 @@ export const Feed = ({
     );
 
   if (!tweets || tweets.length === 0)
-    return <div className="py-4 text-center text-lg">No Tweets Found</div>;
+    return <div className="grow pt-4 text-center text-lg">No Tweets Found</div>;
 
   return (
     <div className="grow overflow-y-scroll" id="scrollable">
