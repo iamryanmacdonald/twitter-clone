@@ -8,7 +8,6 @@ type TweetInput = inferRouterOutputs<AppRouter>["tweets"]["getAll"][number];
 
 export const Tweet = ({ tweet }: { tweet: TweetInput }) => {
   const { content, createdAt, creator, id } = tweet;
-
   return (
     <Link
       href={`/@${creator.username ?? ""}/${id}`}

@@ -22,6 +22,7 @@ model Tweet {
   parent  Tweet?  @relation(name: "replies", fields: [parentId], references: id, onDelete: NoAction, onUpdate: NoAction)
   replies Tweet[] @relation(name: "replies")
 
+  @@unique([createdAt, id])
   @@index([creatorId])
   @@index([parentId])
 }

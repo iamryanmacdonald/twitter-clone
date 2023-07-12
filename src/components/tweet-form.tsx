@@ -24,7 +24,7 @@ export const TweetForm = ({
       if (parentId) {
         void utils.tweets.getById.invalidate({ id: parentId });
       } else {
-        void utils.tweets.getAll.invalidate();
+        void utils.tweets.getInfinitePublicFeed.invalidate();
       }
     },
   });
