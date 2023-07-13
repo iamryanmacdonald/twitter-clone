@@ -5,18 +5,25 @@ import superjson from "superjson";
 
 import { Avatar } from "~/components/avatar";
 import { BackButton } from "~/components/back-button";
+import { Feed } from "~/components/feed";
 import { Layout } from "~/components/layout";
 import { LoadingSpinner } from "~/components/loading";
-import { Tweet } from "~/components/tweet";
 import { TweetForm } from "~/components/tweet-form";
 import { appRouter } from "~/server/api/root";
 import { prisma } from "~/server/db";
 import { api } from "~/utils/api";
 
 const Page: NextPage<{ id: string }> = ({ id }) => {
-  const { data: tweet, isLoading } = api.tweets.getById.useQuery({ id });
+  const { data: tweet, isLoading: isLoadingTweet } =
+    api.tweets.getById.useQuery({ id });
+  const {
+    data: replies,
+    fetchNextPage,
+    hasNextPage,
+    isLoading: isLoadingReplies,
+  } = api.tweets.getRepliesById.useInfiniteQuery({ id });
 
-  if (isLoading)
+  if (isLoadingTweet)
     return (
       <Layout>
         <LoadingSpinner />
@@ -56,9 +63,12 @@ const Page: NextPage<{ id: string }> = ({ id }) => {
         {tweet.content}
       </div>
       <TweetForm placeholder="Tweet your reply!" parentId={tweet.id} />
-      {tweet.replies.map((reply) => (
-        <Tweet key={reply.id} tweet={reply} />
-      ))}
+      <Feed
+        fetchNextPage={fetchNextPage}
+        hasNextPage={hasNextPage}
+        isLoading={isLoadingReplies}
+        tweets={replies?.pages.flatMap((page) => page.replies)}
+      />
     </Layout>
   );
 };
