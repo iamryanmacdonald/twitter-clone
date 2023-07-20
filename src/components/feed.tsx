@@ -1,4 +1,4 @@
-import type { Tweet as TweetType } from "@prisma/client";
+import type { Like, Tweet as TweetType } from "@prisma/client";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 import { LoadingSpinner } from "~/components/loading";
@@ -10,6 +10,7 @@ type FeedTweet = TweetType & {
     name: string | null;
     username: string | null;
   };
+  likes: Like[];
 };
 
 export const Feed = ({
