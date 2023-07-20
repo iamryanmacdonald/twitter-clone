@@ -6,6 +6,17 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 
+const tweetIncludes = {
+  creator: {
+    select: {
+      image: true,
+      name: true,
+      username: true,
+    },
+  },
+  likes: true,
+};
+
 export const tweetsRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
@@ -34,20 +45,7 @@ export const tweetsRouter = createTRPCRouter({
       const { id } = input;
 
       const tweet = await ctx.prisma.tweet.findUnique({
-        include: {
-          creator: {
-            select: {
-              image: true,
-              name: true,
-              username: true,
-            },
-          },
-          replies: {
-            include: {
-              creator: true,
-            },
-          },
-        },
+        include: tweetIncludes,
         where: {
           id,
         },
@@ -69,15 +67,7 @@ export const tweetsRouter = createTRPCRouter({
 
       const tweets = await ctx.prisma.tweet.findMany({
         cursor: cursor ? { createdAt_id: cursor } : undefined,
-        include: {
-          creator: {
-            select: {
-              image: true,
-              name: true,
-              username: true,
-            },
-          },
-        },
+        include: tweetIncludes,
         orderBy: [{ createdAt: "desc" }, { id: "desc" }],
         take: limit + 1,
         where: {
@@ -110,15 +100,7 @@ export const tweetsRouter = createTRPCRouter({
 
       const tweets = await ctx.prisma.tweet.findMany({
         cursor: cursor ? { createdAt_id: cursor } : undefined,
-        include: {
-          creator: {
-            select: {
-              image: true,
-              name: true,
-              username: true,
-            },
-          },
-        },
+        include: tweetIncludes,
         orderBy: [{ createdAt: "desc" }, { id: "desc" }],
         take: limit + 1,
         where: {
@@ -150,15 +132,7 @@ export const tweetsRouter = createTRPCRouter({
 
       const replies = await ctx.prisma.tweet.findMany({
         cursor: cursor ? { createdAt_id: cursor } : undefined,
-        include: {
-          creator: {
-            select: {
-              image: true,
-              name: true,
-              username: true,
-            },
-          },
-        },
+        include: tweetIncludes,
         orderBy: [{ createdAt: "desc" }, { id: "desc" }],
         take: limit + 1,
         where: {
@@ -175,5 +149,33 @@ export const tweetsRouter = createTRPCRouter({
       }
 
       return { nextCursor, replies };
+    }),
+  like: protectedProcedure
+    .input(z.object({ id: z.string(), like: z.boolean() }))
+    .mutation(async ({ ctx, input }) => {
+      const { user } = ctx.session;
+      const { id, like } = input;
+
+      if (like) {
+        await ctx.prisma.like.create({
+          data: {
+            tweetId: id,
+            userId: user.id,
+          },
+        });
+
+        return true;
+      } else {
+        await ctx.prisma.like.delete({
+          where: {
+            tweetId_userId: {
+              tweetId: id,
+              userId: user.id,
+            },
+          },
+        });
+
+        return false;
+      }
     }),
 });

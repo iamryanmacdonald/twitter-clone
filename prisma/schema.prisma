@@ -23,6 +23,18 @@ model Follow {
   @@index([followerId])
 }
 
+model Like {
+  tweetId String
+  userId  String
+
+  tweet Tweet @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tweetId, userId])
+  @@index([tweetId])
+  @@index([userId])
+}
+
 model Tweet {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
@@ -31,6 +43,7 @@ model Tweet {
   parentId  String?
 
   creator User    @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  likes   Like[]
   parent  Tweet?  @relation(name: "replies", fields: [parentId], references: id, onDelete: NoAction, onUpdate: NoAction)
   replies Tweet[] @relation(name: "replies")
 
@@ -85,9 +98,10 @@ model User {
   // Not NextAuth related
   username String?
 
-  tweets    Tweet[]
   followers Follow[] @relation(name: "followers")
   following Follow[] @relation(name: "following")
+  likes     Like[]
+  tweets    Tweet[]
 }
 
 model VerificationToken {
