@@ -8,6 +8,7 @@ import { BackButton } from "~/components/back-button";
 import { Feed } from "~/components/feed";
 import { Layout } from "~/components/layout";
 import { LoadingSpinner } from "~/components/loading";
+import { Retweet } from "~/components/retweet";
 import { TweetForm } from "~/components/tweet-form";
 import { appRouter } from "~/server/api/root";
 import { prisma } from "~/server/db";
@@ -59,10 +60,17 @@ const Page: NextPage<{ id: string }> = ({ id }) => {
           </Link>
         </div>
       </div>
-      <div className="border-b border-slate-600/75 px-4 pb-4 text-lg">
-        {tweet.content}
-      </div>
-      <TweetForm placeholder="Tweet your reply!" parentId={tweet.id} />
+      <div className="px-4 pb-4 text-lg">{tweet.content}</div>
+      {tweet.retweeted && (
+        <Link href={`/@${tweet.retweeted.creatorId}/${tweet.retweeted.id}`}>
+          <Retweet retweet={tweet.retweeted} />
+        </Link>
+      )}
+      <TweetForm
+        className="border-t border-slate-600/75"
+        placeholder="Tweet your reply!"
+        parentId={tweet.id}
+      />
       <Feed
         fetchNextPage={fetchNextPage}
         hasNextPage={hasNextPage}

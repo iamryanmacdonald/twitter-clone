@@ -6,16 +6,21 @@ export const Avatar = ({
   src,
 }: {
   className?: string;
-  size?: string;
+  size?: "large" | "micro";
   src: string;
 }) => {
+  const sizeMap = {
+    large: 96,
+    micro: 24,
+  };
+
   return (
     <Image
       src={src}
       alt="user avatar"
       className={`rounded-full ${className ?? ""}`}
-      height={size === "large" ? 96 : 48}
-      width={size === "large" ? 96 : 48}
+      height={size ? sizeMap[size] : 48}
+      width={size ? sizeMap[size] : 48}
     />
   );
 };

@@ -11,6 +11,7 @@ const config = {
     "",
     "^~/env(.*)$",
     "^~/components/(.*)$",
+    "^~/hooks/(.*)$",
     "^~/pages/(.*)$",
     "^~/server/(.*)$",
     "^~/utils/(.*)$",

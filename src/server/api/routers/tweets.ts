@@ -15,25 +15,47 @@ const tweetIncludes = {
     },
   },
   likes: true,
+  retweeted: {
+    include: {
+      creator: {
+        select: {
+          image: true,
+          name: true,
+          username: true,
+        },
+      },
+    },
+  },
+  retweets: true,
 };
 
 export const tweetsRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
-      z.object({
-        content: z.string().min(1).max(255),
-        parentId: z.string().optional(),
-      })
+      z
+        .object({
+          content: z.string().max(255),
+          parentId: z.string().optional(),
+          retweetedId: z.string().optional(),
+        })
+        .refine(
+          ({ content, retweetedId }) =>
+            !(retweetedId === undefined && content.length < 1)
+        )
     )
     .mutation(async ({ ctx, input }) => {
       const { user } = ctx.session;
-      const { content, parentId } = input;
+      const { content, parentId, retweetedId } = input;
 
       const tweet = await ctx.prisma.tweet.create({
         data: {
           content,
           creatorId: user.id,
           parentId,
+          retweetedId,
+        },
+        include: {
+          creator: true,
         },
       });
 

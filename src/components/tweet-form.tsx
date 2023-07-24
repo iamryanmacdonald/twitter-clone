@@ -1,53 +1,65 @@
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
+import { Avatar } from "~/components/avatar";
+import { Retweet, type RetweetType } from "~/components/retweet";
 import { api } from "~/utils/api";
 
-import { Avatar } from "./avatar";
-
 export const TweetForm = ({
+  className,
   parentId,
   placeholder,
+  retweet,
 }: {
+  className?: string;
   parentId?: string;
   placeholder: string;
+  retweet?: RetweetType;
 }) => {
   const session = useSession();
+  const router = useRouter();
 
   const [content, setContent] = useState("");
 
-  const utils = api.useContext();
-
   const { isLoading, mutate } = api.tweets.create.useMutation({
-    onSuccess: () => {
+    onSuccess: (tweet) => {
       setContent("");
-      if (parentId) {
-        void utils.tweets.getById.invalidate({ id: parentId });
-      } else {
-        void utils.tweets.getInfinitePublicFeed.invalidate();
-      }
+
+      router.push(`/@${tweet.creator.username ?? ""}/${tweet.id}`);
     },
   });
 
   if (session.status !== "authenticated") return null;
 
   return (
-    <div className="flex w-full items-center border-b border-slate-600/75 p-4">
+    <div
+      className={`flex w-full items-center border-b border-slate-600/75 p-4 ${
+        className ?? ""
+      }`}
+    >
       <Avatar src={session.data.user.image ?? ""} />
-      <input
-        className="ml-4 mr-8 h-full grow bg-inherit px-1 py-2 text-lg focus:outline-none"
-        placeholder={placeholder}
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        onKeyUp={(e) => {
-          if (e.code === "Enter") {
-            e.preventDefault();
+      <div className="ml-4 flex grow flex-col">
+        <input
+          className=" mr-8 h-full  bg-inherit px-1 py-2 text-lg focus:outline-none"
+          placeholder={placeholder}
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          onKeyUp={(e) => {
+            if (e.code === "Enter") {
+              e.preventDefault();
 
-            if (content !== "") mutate({ content, parentId });
-          }
-        }}
-        disabled={isLoading}
-      />
+              if (retweet) {
+                mutate({ content, parentId, retweetedId: retweet.id });
+              } else {
+                if (content !== "") mutate({ content, parentId });
+              }
+            }
+          }}
+          disabled={isLoading}
+        />
+        {retweet && <Retweet retweet={retweet} />}
+      </div>
     </div>
   );
 };

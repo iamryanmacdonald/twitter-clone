@@ -36,20 +36,24 @@ model Like {
 }
 
 model Tweet {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  creatorId String
-  content   String
-  parentId  String?
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  creatorId   String
+  content     String
+  parentId    String?
+  retweetedId String?
 
-  creator User    @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  likes   Like[]
-  parent  Tweet?  @relation(name: "replies", fields: [parentId], references: id, onDelete: NoAction, onUpdate: NoAction)
-  replies Tweet[] @relation(name: "replies")
+  creator   User    @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  likes     Like[]
+  parent    Tweet?  @relation(name: "replies", fields: [parentId], references: id, onDelete: NoAction, onUpdate: NoAction)
+  replies   Tweet[] @relation(name: "replies")
+  retweeted Tweet?  @relation(name: "retweets", fields: [retweetedId], references: id, onDelete: NoAction, onUpdate: NoAction)
+  retweets  Tweet[] @relation(name: "retweets")
 
   @@unique([createdAt, id])
   @@index([creatorId])
   @@index([parentId])
+  @@index([retweetedId])
 }
 
 // Necessary for Next auth
